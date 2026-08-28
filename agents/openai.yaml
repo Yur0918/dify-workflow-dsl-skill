@@ -1,0 +1,5 @@
+interface:
+  display_name: "Dify Workflow DSL"
+  short_description: "Design business rules, diagrams, and Dify workflows"
+  brand_color: "#1F8A70"
+  default_prompt: "Use $dify-workflow-dsl to map my business rules, visualize the flow, and create or improve a Dify workflow."
