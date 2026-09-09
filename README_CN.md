@@ -1,5 +1,7 @@
 # Dify Workflow DSL Skill
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
 **Dify Workflow DSL Skill** 是一套帮助 AI Agent 编写、修改、审查和调试
 Dify 工作流 DSL YAML 的技能包。目标很直接：让你用自然语言描述需求，
 AI 自动生成可以导入 Dify 的工作流文件。
@@ -240,3 +242,7 @@ python3 scripts/validate_dsl.py path/to/workflow.yml
 - Dify Marketplace: https://marketplace.dify.ai/
 - Dify official plugins: https://github.com/langgenius/dify-official-plugins
 - Dify marketplace plugin index: https://github.com/langgenius/dify-plugins
+
+## 许可证
+
+本项目以 [MIT License](./LICENSE) 开源。

@@ -1,5 +1,7 @@
 # Dify Workflow DSL Skill
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
 **Dify Workflow DSL Skill** helps an AI coding agent create, modify, review, and
 debug Dify Workflow/Chatflow YAML files that can be imported directly into Dify.
 
@@ -254,3 +256,7 @@ public Dify DSL/workflow examples. Special thanks to:
 - Dify Marketplace: https://marketplace.dify.ai/
 - Dify official plugins: https://github.com/langgenius/dify-official-plugins
 - Dify marketplace plugin index: https://github.com/langgenius/dify-plugins
+
+## License
+
+Released under the [MIT License](./LICENSE).

@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Lightweight checks for a docs/DSL distribution repo: no build, no heavy deps.
+
+      - name: Shell syntax check (install.sh)
+        run: bash -n install.sh
+
+      - name: Python syntax check (scripts/)
+        run: python3 -m py_compile scripts/validate_dsl.py scripts/render_workflow_mermaid.py
+
+      - name: YAML / JSON validation
+        run: |
+          pip install pyyaml --quiet
+          python3 - <<'EOF'
+          import json
+          import yaml
+
+          with open('agents/openai.yaml', encoding='utf-8') as f:
+              yaml.safe_load(f)
+          with open('_skillhub_meta.json', encoding='utf-8') as f:
+              json.load(f)
+          print('yaml/json OK')
+          EOF
+
+      - name: SKILL.md frontmatter check
+        run: |
+          python3 - <<'EOF'
+          text = open('SKILL.md', encoding='utf-8').read()
+          assert text.startswith('---'), 'SKILL.md must open with a frontmatter block'
+          end = text.find('\n---', 3)
+          assert end != -1, 'SKILL.md frontmatter is not closed'
+          front = text[3:end]
+          for field in ('name:', 'description:'):
+              assert field in front, f'frontmatter missing {field}'
+          print('SKILL.md frontmatter OK')
+          EOF
