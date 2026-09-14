@@ -1,0 +1,59 @@
+app:
+  name: "引用损坏（fixture）"
+  description: "Invalid fixture: dangling edge target and sourceType mismatch. Must fail."
+  mode: workflow
+kind: app
+version: "0.6.0"
+workflow:
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: end
+      id: "3000001-bad-source-3000003-target"
+      source: "3000001"
+      sourceHandle: source
+      target: "3000003"
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: "3000001-source-3000099-target"
+      source: "3000001"
+      sourceHandle: source
+      target: "3000099"
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        title: "开始"
+        type: start
+        variables: []
+      height: 120
+      id: "3000001"
+      position: { x: 30, y: 300 }
+      positionAbsolute: { x: 30, y: 300 }
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        title: "结束"
+        type: end
+        outputs: []
+      height: 90
+      id: "3000003"
+      position: { x: 638, y: 300 }
+      positionAbsolute: { x: 638, y: 300 }
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport: { x: 50, y: 200, zoom: 0.8 }

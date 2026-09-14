@@ -1,0 +1,92 @@
+app:
+  name: "工具 SQL 危险（fixture）"
+  description: "Invalid fixture: tool SQL trailing comma + bad variable selector. Must fail."
+  mode: workflow
+kind: app
+version: "0.6.0"
+dependencies:
+  - current_identifier: null
+    type: marketplace
+    value:
+      marketplace_plugin_unique_identifier: example/sql-tools:0.1.0@0000000000000000000000000000000000000000000000000000000000000000
+      version: null
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: tool
+      id: "5000001-source-5000002-target"
+      source: "5000001"
+      sourceHandle: source
+      target: "5000002"
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: end
+      id: "5000002-source-5000003-target"
+      source: "5000002"
+      sourceHandle: source
+      target: "5000003"
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        title: "开始"
+        type: start
+        variables: []
+      height: 120
+      id: "5000001"
+      position: { x: 30, y: 300 }
+      positionAbsolute: { x: 30, y: 300 }
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        title: "执行 SQL"
+        type: tool
+        provider_id: example/sql-tools
+        provider_name: sql-tools
+        provider_type: plugin
+        tool_name: run_sql
+        tool_parameters:
+          query:
+            type: mixed
+            value: "SELECT * FROM orders WHERE status IN ('new', )"
+          sql:
+            type: mixed
+            value: "DELETE FROM orders WHERE status = 'cancelled'"
+          table:
+            type: variable
+            value: "orders"
+      height: 98
+      id: "5000002"
+      position: { x: 334, y: 300 }
+      positionAbsolute: { x: 334, y: 300 }
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        title: "结束"
+        type: end
+        outputs: []
+      height: 90
+      id: "5000003"
+      position: { x: 638, y: 300 }
+      positionAbsolute: { x: 638, y: 300 }
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport: { x: 50, y: 200, zoom: 0.8 }

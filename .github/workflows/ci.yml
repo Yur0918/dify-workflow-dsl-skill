@@ -48,3 +48,6 @@ jobs:
               assert field in front, f'frontmatter missing {field}'
           print('SKILL.md frontmatter OK')
           EOF
+
+      - name: Validator fixture tests
+        run: python3 tests/run_tests.py

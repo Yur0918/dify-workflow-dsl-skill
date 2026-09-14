@@ -1,0 +1,13 @@
+app:
+  name: "结构缺失（fixture）"
+  description: "Invalid fixture: workflow mode without nodes or edges. Must fail."
+  mode: workflow
+kind: app
+version: "0.6.0"
+dependencies: []
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  graph:
+    nodes: []
+    viewport: { x: 0, y: 0, zoom: 0.8 }

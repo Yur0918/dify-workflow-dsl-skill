@@ -1,0 +1,70 @@
+app:
+  name: "代码节点缺字段（fixture）"
+  description: "Invalid fixture: code node without code_language/code/outputs. Must fail."
+  mode: workflow
+kind: app
+version: "0.6.0"
+workflow:
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: "4000001-source-4000002-target"
+      source: "4000001"
+      sourceHandle: source
+      target: "4000002"
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: "4000002-source-4000003-target"
+      source: "4000002"
+      sourceHandle: source
+      target: "4000003"
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        title: "开始"
+        type: start
+        variables: []
+      height: 120
+      id: "4000001"
+      position: { x: 30, y: 300 }
+      positionAbsolute: { x: 30, y: 300 }
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        title: "代码"
+        type: code
+      height: 98
+      id: "4000002"
+      position: { x: 334, y: 300 }
+      positionAbsolute: { x: 334, y: 300 }
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        title: "结束"
+        type: end
+        outputs: []
+      height: 90
+      id: "4000003"
+      position: { x: 638, y: 300 }
+      positionAbsolute: { x: 638, y: 300 }
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport: { x: 50, y: 200, zoom: 0.8 }
