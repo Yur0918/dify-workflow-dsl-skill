@@ -24,7 +24,7 @@ jobs:
 
       - name: YAML / JSON validation
         run: |
-          pip install pyyaml --quiet
+          pip install -r requirements.txt --quiet
           python3 - <<'EOF'
           import json
           import yaml
