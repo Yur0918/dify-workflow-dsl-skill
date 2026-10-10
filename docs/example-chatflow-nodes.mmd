@@ -1,0 +1,42 @@
+flowchart LR
+  nstart_chat["开始对话 (start)"]
+  nintent_router["识别用户意图 (code)"]
+  nfile_gate["是否上传新文件 (if-else)"]
+  ntake_current_file["获取上传文件 (list-operator)"]
+  nextract_current_dsl["提取上传的 DSL 文本 (document-extractor)"]
+  nsave_current_dsl_text["保存提取的 DSL 文本 (assigner)"]
+  ncall_new_analyzer["调用 DSL 分析器（新文件） (tool)"]
+  nroute_gate["无新文件时的路由 (if-else)"]
+  nclear_context["清除会话上下文 (assigner)"]
+  nanswer_cleared["已清除上下文 (answer)"]
+  ncall_paste_analyzer["调用 DSL 分析器（粘贴文本） (tool)"]
+  nrerun_gate["是否存在最近 DSL 文本 (if-else)"]
+  ncall_rerun_analyzer["调用 DSL 分析器（重新分析） (tool)"]
+  nanswer_need_file["需要 DSL 文本 (answer)"]
+  nfollowup_answer["解读最近报告 (llm)"]
+  nanswer_followup["输出报告解读 (answer)"]
+  ntool_result_aggregate["汇总工具结果 (variable-aggregator)"]
+  nnormalize_result["规范化分析结果 (code)"]
+  nanswer_report["输出分析报告 (answer)"]
+  nstore_report["保存分析报告 (assigner)"]
+  nstart_chat --> nintent_router
+  nintent_router --> nfile_gate
+  nfile_gate -->|"true"| ntake_current_file
+  ntake_current_file --> nextract_current_dsl
+  nextract_current_dsl --> nsave_current_dsl_text
+  nsave_current_dsl_text --> ncall_new_analyzer
+  nfile_gate -->|"false"| nroute_gate
+  nroute_gate -->|"clear"| nclear_context
+  nclear_context --> nanswer_cleared
+  nroute_gate -->|"paste"| ncall_paste_analyzer
+  nroute_gate -->|"rerun"| nrerun_gate
+  nrerun_gate -->|"true"| ncall_rerun_analyzer
+  nrerun_gate -->|"false"| nanswer_need_file
+  nroute_gate -->|"false"| nfollowup_answer
+  nfollowup_answer --> nanswer_followup
+  ncall_new_analyzer --> ntool_result_aggregate
+  ncall_paste_analyzer --> ntool_result_aggregate
+  ncall_rerun_analyzer --> ntool_result_aggregate
+  ntool_result_aggregate --> nnormalize_result
+  nnormalize_result --> nanswer_report
+  nanswer_report --> nstore_report

@@ -28,6 +28,44 @@ Workflow、Agent、数据库读写、插件工具、知识库、文件处理、�
 
 English version: [README.md](./README.md)
 
+## 两个脚本
+
+这个 skill 附带两个确定性 CLI，把机械的那一半活干掉，模型才能把算力花在
+图结构本身上。
+
+| 脚本 | 作用 |
+|---|---|
+| `scripts/validate_dsl.py` | 导入前的快速失败检查 |
+| `scripts/render_workflow_mermaid.py` | 把 DSL 图渲染成 Mermaid 节点流程图 |
+
+### 从任意 DSL 渲染节点流程图
+
+`render_workflow_mermaid.py` 读取导出 DSL 的 `workflow.graph`，输出 Mermaid
+flowchart：每个节点写成 `标题 (类型)`，每条边按分支 handle 标注。适合在 review
+一个图时对着 diff 看、贴进设计文档，或者检查手工改动有没有悄悄丢掉一条边。
+
+```bash
+python3 scripts/render_workflow_mermaid.py path/to/workflow.yml
+# 标准输出：Mermaid 源码
+python3 scripts/render_workflow_mermaid.py path/to/workflow.yml --output graph.mmd
+```
+
+下面这张图就是用该脚本从一个真实导出的 20 节点 `advanced-chat` 工作流
+（一个 DSL 分析助手）渲染出来的：
+
+![一个 20 节点 advanced-chat DSL 的节点流程图：读取 DSL → 静态校验 → 仅按需交给 LLM 分析器 → 合并结果与规范化代码，正是本 skill 强调的「确定性优先」模式](./docs/example-chatflow-nodes.png)
+
+Mermaid 源码一并放在
+[`docs/example-chatflow-nodes.mmd`](./docs/example-chatflow-nodes.mmd)，可以重新
+渲染或换样式。图上的分支标签（`true` / `false` / `clear` / `paste` / `rerun`）
+取自 DSL 的 `sourceHandle` —— 恰好是手写时最容易写错的部分。
+
+把 `.mmd` 转成 PNG/SVG 需要一个 Mermaid 渲染器，例如：
+
+```bash
+npx -y @mermaid-js/mermaid-cli@11 -i graph.mmd -o graph.png -b white
+```
+
 ## 它解决什么问题
 
 Dify 工作流很强，但手工搭建和手写 DSL 都容易踩坑：
@@ -86,8 +124,14 @@ bash install.sh --platform codex --target-dir "$HOME/.codex/skills/dify-workflow
 ```
 
 这个安装脚本的原理很简单：根据 `--platform` 判断目标 skills 目录，然后把
-`SKILL.md`、`references/`、`scripts/` 和元数据复制过去。如果已经安装过，
-可以加 `--force` 覆盖。
+`SKILL.md`、`agents/`、`references/`、`scripts/` 和两个 README 复制过去。
+如果已经安装过，可以加 `--force` 覆盖。
+
+两个脚本都依赖 PyYAML：
+
+```bash
+pip install -r requirements.txt
+```
 
 ## 最大优势
 
@@ -119,6 +163,7 @@ AI 就可以基于这个 skill 生成 YAML、节点、边、工具参数、数�
 - 支持 `spance/db_client_node` 和 `hjlarry/database` 两类数据库工具模式。
 - 审查已有 DSL 的导入风险和逻辑问题。
 - 用 `scripts/validate_dsl.py` 做基础结构校验。
+- 用 `scripts/render_workflow_mermaid.py` 把 DSL 图可视化。
 
 ## 怎么用
 
@@ -173,11 +218,18 @@ python3 scripts/validate_dsl.py path/to/workflow.yml
 批量校验多个 DSL：
 
 ```bash
-python3 scripts/validate_dsl.py examples/*.yml
+python3 scripts/validate_dsl.py tests/fixtures/valid-*.yml
 ```
 
 校验脚本会检查 YAML 解析、DSL version 类型、图连接、节点类型、LLM/tool
 基础字段、变量引用，以及 `INSERT` 字段列表尾逗号等常见 SQL 问题。
+
+跑一遍 fixture 测试（`valid-*` 必须退出码0，`invalid-*` 必须非零退出并打印
+预期报错）：
+
+```bash
+python3 tests/run_tests.py
+```
 
 ## 项目结构
 
@@ -186,8 +238,12 @@ python3 scripts/validate_dsl.py examples/*.yml
 ├── SKILL.md
 ├── agents/
 │   └── openai.yaml
+├── docs/
+│   ├── example-chatflow-nodes.png   # 由 render_workflow_mermaid.py 渲染
+│   └── example-chatflow-nodes.mmd
 ├── install.sh
 ├── references/
+│   ├── business-workflow-design.md
 │   ├── complete-examples.md
 │   ├── database-tools.md
 │   ├── dsl-structure.md
@@ -195,8 +251,13 @@ python3 scripts/validate_dsl.py examples/*.yml
 │   ├── official-0.6-target.md
 │   ├── plugin-marketplace-tools.md
 │   └── real-world-yml-study.md
+├── requirements.txt
 ├── scripts/
+│   ├── render_workflow_mermaid.py
 │   └── validate_dsl.py
+├── tests/
+│   ├── fixtures/                    # 6 个 valid / invalid DSL fixture
+│   └── run_tests.py
 ├── README.md
 └── README_CN.md
 ```
@@ -214,7 +275,7 @@ python3 scripts/validate_dsl.py examples/*.yml
 - 每次更新后运行：
 
 ```bash
-python3 /path/to/skill-creator/scripts/quick_validate.py .
+python3 tests/run_tests.py
 python3 scripts/validate_dsl.py path/to/workflow.yml
 ```
 

@@ -31,6 +31,46 @@ patterns.
 
 中文说明见 [README_CN.md](./README_CN.md).
 
+## What The Scripts Do
+
+Two deterministic CLIs ship with this skill. They do the boring half of the job
+so the model can spend its budget on the graph itself.
+
+| Script | Purpose |
+|---|---|
+| `scripts/validate_dsl.py` | Fail-fast checks on a DSL file before you import it |
+| `scripts/render_workflow_mermaid.py` | Turn a DSL graph into a Mermaid node diagram |
+
+### Render a node diagram from any DSL
+
+`render_workflow_mermaid.py` reads the `workflow.graph` of an exported DSL and
+emits a Mermaid flowchart — every node as `title (type)`, every edge labelled
+with its branch handle. Useful for reviewing a graph in a diff, pasting into a
+design doc, or checking a hand-edit did not silently drop an edge.
+
+```bash
+python3 scripts/render_workflow_mermaid.py path/to/workflow.yml
+# stdout: Mermaid source
+python3 scripts/render_workflow_mermaid.py path/to/workflow.yml --output graph.mmd
+```
+
+Here is a real 20-node `advanced-chat` graph (a DSL analysis copilot) rendered by
+that script from its own export:
+
+![Node graph of a 20-node advanced-chat DSL: a chatflow that reads a DSL file, runs static validation, hands off to an LLM analyzer only on demand, then merges results and normalises code — the deterministic-first pattern this skill encodes](./docs/example-chatflow-nodes.png)
+
+The Mermaid source is checked in at
+[`docs/example-chatflow-nodes.mmd`](./docs/example-chatflow-nodes.mmd), so you can
+re-render or restyle it. Branch labels (`true` / `false` / `clear` / `paste` /
+`rerun`) come from the DSL `sourceHandle`, which is exactly the part that is easy
+to get wrong by hand.
+
+To turn the `.mmd` into a PNG/SVG you need a Mermaid renderer, e.g.:
+
+```bash
+npx -y @mermaid-js/mermaid-cli@11 -i graph.mmd -o graph.png -b white
+```
+
 ## Why This Exists
 
 Dify workflows are powerful, but DSL authoring is easy to get wrong:
@@ -89,9 +129,15 @@ If your agent uses a different skills directory, pass it explicitly:
 bash install.sh --platform codex --target-dir "$HOME/.codex/skills/dify-workflow-dsl"
 ```
 
-The installer is intentionally simple: it copies `SKILL.md`, `references/`,
-`scripts/`, and metadata into the target skills directory. Re-run with `--force`
-to overwrite a previous installation.
+The installer is intentionally simple: it copies `SKILL.md`, `agents/`,
+`references/`, `scripts/`, and the two README files into the target skills
+directory. Re-run with `--force` to overwrite a previous installation.
+
+Both scripts need PyYAML:
+
+```bash
+pip install -r requirements.txt
+```
 
 ## What It Can Do
 
@@ -107,6 +153,7 @@ to overwrite a previous installation.
   for `spance/db_client_node` and `hjlarry/database`.
 - Review existing DSL files for import risks and behavioral bugs.
 - Validate YAML with `scripts/validate_dsl.py`.
+- Visualize a DSL graph with `scripts/render_workflow_mermaid.py`.
 
 ## Key Advantage
 
@@ -181,12 +228,19 @@ python3 scripts/validate_dsl.py path/to/workflow.yml
 Validate multiple DSL files:
 
 ```bash
-python3 scripts/validate_dsl.py examples/*.yml
+python3 scripts/validate_dsl.py tests/fixtures/valid-*.yml
 ```
 
 The validator checks YAML parsing, string DSL version, graph edge references,
 node type consistency, LLM/tool basics, variable references, and common SQL
 mistakes such as trailing commas in `INSERT` column lists.
+
+Run the fixture suite (each `valid-*` must exit 0, each `invalid-*` must exit
+non-zero and print the expected error):
+
+```bash
+python3 tests/run_tests.py
+```
 
 ## Project Structure
 
@@ -195,8 +249,12 @@ mistakes such as trailing commas in `INSERT` column lists.
 ├── SKILL.md
 ├── agents/
 │   └── openai.yaml
+├── docs/
+│   ├── example-chatflow-nodes.png   # rendered by render_workflow_mermaid.py
+│   └── example-chatflow-nodes.mmd
 ├── install.sh
 ├── references/
+│   ├── business-workflow-design.md
 │   ├── complete-examples.md
 │   ├── database-tools.md
 │   ├── dsl-structure.md
@@ -204,8 +262,13 @@ mistakes such as trailing commas in `INSERT` column lists.
 │   ├── official-0.6-target.md
 │   ├── plugin-marketplace-tools.md
 │   └── real-world-yml-study.md
+├── requirements.txt
 ├── scripts/
+│   ├── render_workflow_mermaid.py
 │   └── validate_dsl.py
+├── tests/
+│   ├── fixtures/                    # 6 valid/invalid DSL fixtures
+│   └── run_tests.py
 ├── README.md
 └── README_CN.md
 ```
@@ -223,10 +286,10 @@ Keep this skill useful by updating it when Dify changes:
 - Keep `SKILL.md` short so the agent loads only the essential workflow.
 - Add deterministic checks to `scripts/validate_dsl.py` when repeated import
   errors are discovered.
-- Re-run skill validation after edits:
+- Re-run the fixture suite after edits:
 
 ```bash
-python3 /path/to/skill-creator/scripts/quick_validate.py .
+python3 tests/run_tests.py
 python3 scripts/validate_dsl.py path/to/workflow.yml
 ```
 
